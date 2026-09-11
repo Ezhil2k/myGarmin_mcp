@@ -1,0 +1,85 @@
+# Personal data and local reports
+your_data/
+vulnerability_reports/
+SECURITY_AUDIT_LOG.md
+response.json
+probe_dump.json
+
+# Credentials, tokens, and local secrets
+.env
+.env.*
+!.env.example
+secrets/
+credentials*.json
+*token*.json
+*.pem
+*.key
+*.p12
+
+# Local tunnel configuration
+ngrok.yml
+cloudflared.yml
+
+# Tests and local tooling
+tests/*.fit
+tests/cassettes/
+.claude/
+.pdm-build/
+.pdm-python
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Build and distribution artifacts
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+*.egg
+.installed.cfg
+MANIFEST
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs and generated documentation
+*.log
+docs/_build/
+.ipynb_checkpoints/
+site/
+
+# Other tool state
+pdm.lock
+ignore/
