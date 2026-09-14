@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON="$ROOT_DIR/.venv/bin/python"
+
+if [[ ! -x "$PYTHON" ]]; then
+  echo "Missing virtual environment: $ROOT_DIR/.venv" >&2
+  echo "Create it and install the project dependencies first." >&2
+  exit 1
+fi
+
+if [[ "$#" -eq 0 ]]; then
+  exec "$PYTHON" -m garminconnect.mcp_cli dashboard
+fi
+
+exec "$PYTHON" -m garminconnect.mcp_cli "$@"
