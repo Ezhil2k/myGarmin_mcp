@@ -17,14 +17,13 @@ from mcp.server.transport_security import TransportSecuritySettings
 
 
 def _tokenstore() -> str:
+    """Return the configured Garmin token store path."""
     return str(Path(os.getenv("GARMINTOKENS", "~/.garminconnect")).expanduser())
 
 
 _allowed_hosts = [
     value.strip()
-    for value in os.getenv(
-        "MCP_ALLOWED_HOSTS", "127.0.0.1:*,localhost:*"
-    ).split(",")
+    for value in os.getenv("MCP_ALLOWED_HOSTS", "127.0.0.1:*,localhost:*").split(",")
     if value.strip()
 ]
 
@@ -111,6 +110,34 @@ def get_activities_by_date(start_date: str, end_date: str) -> str:
 def get_last_activity() -> str:
     """Get the most recent activity, if one exists."""
     return _json(_api().get_last_activity())
+
+
+@server.tool()
+def get_activity_splits(activity_id: str) -> str:
+    """Get explicit per-distance or per-lap splits for a Garmin activity."""
+    payload = _api().get_activity_splits(activity_id)
+    laps = payload.get("lapDTOs", []) if isinstance(payload, dict) else []
+    splits = []
+    for lap in laps:
+        distance = float(lap.get("distance") or 0)
+        duration = float(lap.get("duration") or 0)
+        if distance <= 0:
+            continue
+        distance_km = distance / 1000
+        splits.append(
+            {
+                "split": lap.get("lapIndex", len(splits) + 1),
+                "distance_km": round(distance_km, 3),
+                "duration_seconds": round(duration, 3),
+                "pace_min_per_km": round(duration / distance_km / 60, 2),
+                "average_hr_bpm": lap.get("averageHR"),
+                "max_hr_bpm": lap.get("maxHR"),
+                "elevation_gain_m": lap.get("elevationGain"),
+                "elevation_loss_m": lap.get("elevationLoss"),
+                "calories": lap.get("calories"),
+            }
+        )
+    return _json({"activity_id": activity_id, "split_count": len(splits), "splits": splits})
 
 
 @server.tool()

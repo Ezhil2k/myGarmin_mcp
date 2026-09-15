@@ -26,6 +26,9 @@ def _pid(name: str) -> int | None:
     try:
         value = int(_pid_path(name).read_text(encoding="utf-8").strip())
         os.kill(value, 0)
+        stat_path = Path(f"/proc/{value}/stat")
+        if stat_path.exists() and stat_path.read_text(encoding="utf-8").split()[2] == "Z":
+            return None
         return value
     except (FileNotFoundError, ValueError, ProcessLookupError, PermissionError):
         return None

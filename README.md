@@ -5,6 +5,8 @@ Read Garmin Connect health, activity, profile, device, and body-battery data thr
 - a simple local CLI/dashboard;
 - an MCP server for ChatGPT or another MCP client.
 
+The MCP server also exposes per-distance/per-lap splits for individual activities.
+
 ![Garmin MCP dashboard](docs/garmin-mcp-dashboard.png)
 
 The MCP tools are read-only. Garmin login tokens are cached locally in
