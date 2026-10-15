@@ -111,7 +111,7 @@ example = [
     "readchar",
 ]
 mcp = [
-    "mcp>=1.29,<2",
+    "mcp>=1.29,<3",
 ]
 
 [tool.pdm]
