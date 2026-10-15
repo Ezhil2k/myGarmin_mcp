@@ -12,31 +12,28 @@ from threading import Lock
 from typing import Any
 
 from garminconnect import Garmin
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
 
 
 def _tokenstore() -> str:
-    """Return the configured Garmin token store path."""
     return str(Path(os.getenv("GARMINTOKENS", "~/.garminconnect")).expanduser())
 
 
 _allowed_hosts = [
     value.strip()
-    for value in os.getenv("MCP_ALLOWED_HOSTS", "127.0.0.1:*,localhost:*").split(",")
+    for value in os.getenv(
+        "MCP_ALLOWED_HOSTS", "127.0.0.1:*,localhost:*"
+    ).split(",")
     if value.strip()
 ]
 
-server = FastMCP(
+server = MCPServer(
     "Garmin Connect",
     instructions=(
         "Read-only Garmin Connect data. Dates use YYYY-MM-DD. "
         "Do not expose credentials or token contents."
     ),
-    host=os.getenv("MCP_HOST", "127.0.0.1"),
-    port=int(os.getenv("MCP_PORT", "8000")),
-    streamable_http_path=os.getenv("MCP_PATH", "/mcp"),
-    transport_security=TransportSecuritySettings(allowed_hosts=_allowed_hosts),
 )
 
 _client: Garmin | None = None
@@ -141,6 +138,12 @@ def get_activity_splits(activity_id: str) -> str:
 
 
 @server.tool()
+def get_body_weight(start_date: str, end_date: str) -> str:
+    """Get body-weight entries between two YYYY-MM-DD dates, inclusive."""
+    return _json(_api().get_weigh_ins(start_date, end_date))
+
+
+@server.tool()
 def get_devices() -> str:
     """List Garmin devices associated with the authenticated account."""
     return _json(_api().get_devices())
@@ -164,7 +167,14 @@ def main() -> None:
         default=os.getenv("MCP_TRANSPORT", "stdio"),
     )
     args = parser.parse_args()
-    server.run(transport=args.transport)
+    server.run(
+        transport=args.transport,
+        host=os.getenv("MCP_HOST", "127.0.0.1"),
+        port=int(os.getenv("MCP_PORT", "8000")),
+        streamable_http_path=os.getenv("MCP_PATH", "/mcp"),
+        stateless_http=True,
+        transport_security=TransportSecuritySettings(allowed_hosts=_allowed_hosts),
+    )
 
 
 if __name__ == "__main__":
